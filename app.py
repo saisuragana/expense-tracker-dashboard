@@ -324,7 +324,7 @@ with tab4:
         st.success(f"✅ Total Spending in Selected Range: ₹{total:.2f}")
 
         st.markdown("### 📌 Monthly Spending Table")
-        st.dataframe(monthly_sum, use_container_width=True)
+        st.dataframe(monthly_sum, use_container_width=True,hide_index=True)
 
     st.markdown("---")
     st.subheader("⚠️ Danger Zone")
@@ -333,3 +333,4 @@ with tab4:
         save_data(empty_df)
         st.success("✅ All expenses cleared!")
         st.rerun()
+
