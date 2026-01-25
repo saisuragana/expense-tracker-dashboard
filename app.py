@@ -122,15 +122,16 @@ with tab1:
         submitted = st.form_submit_button("Add Expense ✅")
 
     if submitted:
-    new_row = {
-        "date": str(date),
-        "category": category,
-        "amount": float(amount),
-        "note": note
-    }
-    append_expense(new_row)
-    st.success("✅ Expense Added Successfully")
-    st.rerun()
+        new_row = {
+            "date": str(date),
+            "category": category,
+            "amount": float(amount),
+            "note": note
+        }
+        append_expense(new_row)
+        st.success("✅ Expense Added Successfully")
+        st.rerun()
+
 
 
 
@@ -144,7 +145,6 @@ with tab2:
         st.warning("No expenses yet. Add your first expense ✅")
         st.stop()
 
-    # Filters inside expander (clean UI)
     with st.expander("🔍 Filters", expanded=True):
         col1, col2 = st.columns(2)
 
@@ -166,52 +166,40 @@ with tab2:
     if selected_month != "All":
         filtered_df = filtered_df[filtered_df["date"].dt.strftime("%Y-%m") == selected_month]
 
-    # ✅ ONE clean table with S.No
+    # ✅ Show only one table with S.No
     show_df = filtered_df.copy().reset_index(drop=True)
     show_df.insert(0, "S.No", range(1, len(show_df) + 1))
-
-    # Nice readable date in table
-    show_df["date"] = show_df["date"].dt.strftime("%Y-%m-%d")
+    show_df["date"] = pd.to_datetime(show_df["date"]).dt.strftime("%Y-%m-%d")
 
     st.dataframe(show_df, use_container_width=True)
 
-    # ✅ Delete by S.No
     st.markdown("### ❌ Delete an Expense")
 
-show_df = filtered_df.copy().reset_index(drop=True)
-show_df.insert(0, "S.No", range(1, len(show_df) + 1))
-show_df["date"] = pd.to_datetime(show_df["date"]).dt.strftime("%Y-%m-%d")
+    if len(show_df) > 0:
+        selected_sno = st.selectbox("Select S.No to delete", show_df["S.No"].tolist())
 
-st.dataframe(show_df, use_container_width=True)
+        if st.button("Delete Selected Expense 🚮"):
+            row_to_delete = selected_sno - 1
+            record = show_df.iloc[row_to_delete]
 
-if len(show_df) > 0:
-    selected_sno = st.selectbox("Select S.No to delete", show_df["S.No"].tolist())
+            df2 = prepare_df(load_data()).reset_index(drop=True)
 
-    if st.button("Delete Selected Expense 🚮"):
-        row_to_delete = selected_sno - 1
-        record = show_df.iloc[row_to_delete]
+            mask = (
+                (df2["date"].dt.strftime("%Y-%m-%d") == record["date"]) &
+                (df2["category"] == record["category"]) &
+                (df2["amount"] == record["amount"]) &
+                (df2["note"].fillna("") == str(record["note"]))
+            )
 
-        df2 = load_data()
-        df2["amount"] = pd.to_numeric(df2["amount"], errors="coerce").fillna(0)
-        df2["date"] = pd.to_datetime(df2["date"], errors="coerce")
-        df2 = df2.dropna(subset=["date"])
+            idx_to_drop = df2[mask].index
+            if len(idx_to_drop) > 0:
+                df2 = df2.drop(idx_to_drop[0])
+                save_data(df2)
+                st.success("✅ Deleted Successfully!")
+                st.rerun()
+            else:
+                st.error("❌ Record not found to delete!")
 
-        # delete only ONE exact record
-        mask = (
-            (df2["date"].dt.strftime("%Y-%m-%d") == record["date"]) &
-            (df2["category"] == record["category"]) &
-            (df2["amount"] == record["amount"]) &
-            (df2["note"].fillna("") == str(record["note"]))
-        )
-
-        idx_to_drop = df2[mask].index
-        if len(idx_to_drop) > 0:
-            df2 = df2.drop(idx_to_drop[0])
-            save_data(df2)
-            st.success("✅ Deleted Successfully!")
-            st.rerun()
-        else:
-            st.error("❌ Record not found to delete!")
 
    
 
@@ -356,5 +344,6 @@ with tab4:
         save_data(empty_df)
         st.success("✅ All expenses cleared!")
         st.rerun()
+
 
 
