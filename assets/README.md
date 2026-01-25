@@ -1,3 +1,3 @@
 ## 📸 Screenshots
-![Dashboard](assets/dashboard.png)
-![Insights](assets/insights.png)
+![dashboard](assets/dashboard.png)
+![insights](assets/insights.png)
