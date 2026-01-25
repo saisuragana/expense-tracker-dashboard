@@ -26,4 +26,9 @@ A simple and interactive Expense Tracker web app built using **Python + Streamli
 pip install -r requirements.txt
 streamlit run app.py
 
+## 📸 Screenshots
+![Dashboard](assets/dashboard.png)
+![Insights](assets/insights.png)
+
+
 
