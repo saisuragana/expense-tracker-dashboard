@@ -25,7 +25,10 @@ A simple and interactive Expense Tracker web app built using **Python + Streamli
 ![Dashboard](assets/dashboard.png)
 ![Insights](assets/insights.png)
 
+⚠️ Note: App uses CSV storage. On Streamlit Cloud, data may reset after restart/redeploy.
+
 ## ▶️ Run Locally
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
+
