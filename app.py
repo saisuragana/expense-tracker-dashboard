@@ -25,11 +25,13 @@ def save_data(df):
 def append_expense(row):
     df_new = pd.DataFrame([row])
 
-    # If file doesn't exist OR file is empty -> write with header
+    # If file doesn't exist or empty -> write header
     if (not os.path.exists(FILE_NAME)) or (os.path.getsize(FILE_NAME) == 0):
         df_new.to_csv(FILE_NAME, index=False)
     else:
+        # append without header
         df_new.to_csv(FILE_NAME, mode="a", header=False, index=False)
+
 
 
 def prepare_df(df):
@@ -89,7 +91,7 @@ button[data-baseweb="tab"] {
 """, unsafe_allow_html=True)
 
 
-st.caption(f"📁 Saving expenses to: {FILE_NAME}")
+
 
 
 # -------------------- LOAD DATA --------------------
@@ -346,3 +348,4 @@ with tab4:
         save_data(empty_df)
         st.success("✅ All expenses cleared!")
         st.rerun()
+
