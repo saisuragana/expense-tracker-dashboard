@@ -19,10 +19,11 @@ A simple and interactive Expense Tracker web app built using **Python + Streamli
 - Python
 - Streamlit
 - Pandas
-- Matplotlib
+- Plotly
 
 ## ▶️ Run Locally
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
+
 
