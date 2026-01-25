@@ -31,11 +31,15 @@ def append_expense(row):
         df_new.to_csv(FILE_NAME, mode="a", header=False, index=False)
 
 
-
 def prepare_df(df):
     """Convert types safely and remove invalid rows."""
+    if df.empty:
+        return df
+
     df["amount"] = pd.to_numeric(df["amount"], errors="coerce").fillna(0)
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df["category"] = df["category"].fillna("Other")
+    df["note"] = df["note"].fillna("")
     df = df.dropna(subset=["date"])
     return df
 
@@ -44,52 +48,38 @@ def prepare_df(df):
 st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
 
 st.title("💰 Expense Tracker Dashboard")
-
-
 st.write("Track your daily expenses + visualize analytics 📊")
+
+# ✅ UI CSS (Professional look)
 st.markdown("""
 <style>
-/* Main background */
 .stApp {
     background: linear-gradient(180deg, #0E1117 0%, #0B0F14 100%);
 }
-
-/* Make headers look premium */
 h1, h2, h3 {
     letter-spacing: 0.5px;
 }
-
-/* Cards for metrics */
 div[data-testid="stMetric"] {
     background-color: rgba(255,255,255,0.06);
     padding: 16px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.08);
 }
-
-/* Buttons style */
 div.stButton > button {
     border-radius: 12px;
     padding: 10px 16px;
     font-weight: 600;
 }
-
-/* Dataframe container */
 div[data-testid="stDataFrame"] {
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.08);
 }
-
-/* Tabs style */
 button[data-baseweb="tab"] {
     font-weight: 600;
 }
 </style>
 """, unsafe_allow_html=True)
-
-
-
 
 
 # -------------------- LOAD DATA --------------------
@@ -101,6 +91,7 @@ except Exception as e:
     st.stop()
 
 df = prepare_df(df)
+
 
 # -------------------- TABS --------------------
 tab1, tab2, tab3, tab4 = st.tabs(["➕ Add Expense", "📌 Expenses", "📈 Insights", "📅 Reports"])
@@ -133,8 +124,6 @@ with tab1:
         st.rerun()
 
 
-
-
 # ---------------- TAB 2: EXPENSES + FILTER + DELETE ----------------
 with tab2:
     st.subheader("📌 Expenses")
@@ -145,6 +134,7 @@ with tab2:
         st.warning("No expenses yet. Add your first expense ✅")
         st.stop()
 
+    # Filters
     with st.expander("🔍 Filters", expanded=True):
         col1, col2 = st.columns(2)
 
@@ -166,21 +156,21 @@ with tab2:
     if selected_month != "All":
         filtered_df = filtered_df[filtered_df["date"].dt.strftime("%Y-%m") == selected_month]
 
-    # ✅ Show only one table with S.No
+    # ✅ One table with S.No
     show_df = filtered_df.copy().reset_index(drop=True)
     show_df.insert(0, "S.No", range(1, len(show_df) + 1))
-    show_df["date"] = pd.to_datetime(show_df["date"]).dt.strftime("%Y-%m-%d")
+    show_df["date"] = show_df["date"].dt.strftime("%Y-%m-%d")
 
     st.dataframe(show_df, use_container_width=True)
 
+    # ✅ Delete by S.No
     st.markdown("### ❌ Delete an Expense")
 
     if len(show_df) > 0:
         selected_sno = st.selectbox("Select S.No to delete", show_df["S.No"].tolist())
 
         if st.button("Delete Selected Expense 🚮"):
-            row_to_delete = selected_sno - 1
-            record = show_df.iloc[row_to_delete]
+            record = show_df.iloc[selected_sno - 1]
 
             df2 = prepare_df(load_data()).reset_index(drop=True)
 
@@ -192,6 +182,7 @@ with tab2:
             )
 
             idx_to_drop = df2[mask].index
+
             if len(idx_to_drop) > 0:
                 df2 = df2.drop(idx_to_drop[0])
                 save_data(df2)
@@ -200,8 +191,6 @@ with tab2:
             else:
                 st.error("❌ Record not found to delete!")
 
-
-   
 
 # ---------------- TAB 3: INSIGHTS (PLOTLY GRAPHS) ----------------
 with tab3:
@@ -344,6 +333,3 @@ with tab4:
         save_data(empty_df)
         st.success("✅ All expenses cleared!")
         st.rerun()
-
-
-
