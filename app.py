@@ -25,11 +25,9 @@ def save_data(df):
 def append_expense(row):
     df_new = pd.DataFrame([row])
 
-    # If file doesn't exist or empty -> write header
     if (not os.path.exists(FILE_NAME)) or (os.path.getsize(FILE_NAME) == 0):
         df_new.to_csv(FILE_NAME, index=False)
     else:
-        # append without header
         df_new.to_csv(FILE_NAME, mode="a", header=False, index=False)
 
 
@@ -124,15 +122,16 @@ with tab1:
         submitted = st.form_submit_button("Add Expense ✅")
 
     if submitted:
-        new_row = {
-            "date": str(date),
-            "category": category,
-            "amount": float(amount),
-            "note": note,
-        }
-        append_expense(new_row)
-        st.success("✅ Expense Added Successfully")
-        st.rerun()
+    new_row = {
+        "date": str(date),
+        "category": category,
+        "amount": float(amount),
+        "note": note
+    }
+    append_expense(new_row)
+    st.success("✅ Expense Added Successfully")
+    st.rerun()
+
 
 
 # ---------------- TAB 2: EXPENSES + FILTER + DELETE ----------------
@@ -179,33 +178,42 @@ with tab2:
     # ✅ Delete by S.No
     st.markdown("### ❌ Delete an Expense")
 
-    if len(show_df) > 0:
-        selected_sno = st.selectbox("Select S.No to delete", show_df["S.No"].tolist())
+show_df = filtered_df.copy().reset_index(drop=True)
+show_df.insert(0, "S.No", range(1, len(show_df) + 1))
+show_df["date"] = pd.to_datetime(show_df["date"]).dt.strftime("%Y-%m-%d")
 
-        if st.button("Delete Selected Expense 🚮"):
-            row_to_delete = selected_sno - 1
-            record = show_df.iloc[row_to_delete]
+st.dataframe(show_df, use_container_width=True)
 
-            # Reload full df (original data)
-            df2 = prepare_df(load_data()).reset_index(drop=True)
+if len(show_df) > 0:
+    selected_sno = st.selectbox("Select S.No to delete", show_df["S.No"].tolist())
 
-            # Match record (delete only ONE matching row)
-            mask = (
-                (df2["date"].dt.strftime("%Y-%m-%d") == record["date"]) &
-                (df2["category"] == record["category"]) &
-                (df2["amount"] == record["amount"]) &
-                (df2["note"].fillna("") == str(record["note"]))
-            )
+    if st.button("Delete Selected Expense 🚮"):
+        row_to_delete = selected_sno - 1
+        record = show_df.iloc[row_to_delete]
 
-            idx_to_drop = df2[mask].index
-            if len(idx_to_drop) > 0:
-                df2 = df2.drop(idx_to_drop[0]).reset_index(drop=True)
-                save_data(df2)
-                st.success("✅ Deleted Successfully!")
-                st.rerun()
-            else:
-                st.error("❌ Could not find that record to delete.")
+        df2 = load_data()
+        df2["amount"] = pd.to_numeric(df2["amount"], errors="coerce").fillna(0)
+        df2["date"] = pd.to_datetime(df2["date"], errors="coerce")
+        df2 = df2.dropna(subset=["date"])
 
+        # delete only ONE exact record
+        mask = (
+            (df2["date"].dt.strftime("%Y-%m-%d") == record["date"]) &
+            (df2["category"] == record["category"]) &
+            (df2["amount"] == record["amount"]) &
+            (df2["note"].fillna("") == str(record["note"]))
+        )
+
+        idx_to_drop = df2[mask].index
+        if len(idx_to_drop) > 0:
+            df2 = df2.drop(idx_to_drop[0])
+            save_data(df2)
+            st.success("✅ Deleted Successfully!")
+            st.rerun()
+        else:
+            st.error("❌ Record not found to delete!")
+
+   
 
 # ---------------- TAB 3: INSIGHTS (PLOTLY GRAPHS) ----------------
 with tab3:
@@ -348,4 +356,5 @@ with tab4:
         save_data(empty_df)
         st.success("✅ All expenses cleared!")
         st.rerun()
+
 
