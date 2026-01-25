@@ -1,3 +1,6 @@
+## 🌐 Live Demo
+https://expense-tracker-dashboard-fh6xzcij4xs3rsg37it56h.streamlit.app
+
 # 💰 Expense Tracker Dashboard (Python + Streamlit)
 
 A simple and interactive Expense Tracker web app built using **Python + Streamlit** to track daily expenses and visualize spending analytics.
@@ -22,3 +25,4 @@ A simple and interactive Expense Tracker web app built using **Python + Streamli
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
+
