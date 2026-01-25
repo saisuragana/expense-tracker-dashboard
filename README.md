@@ -1,2 +1,24 @@
-# expense-tracker-dashboard
-A Python Streamlit expense tracker dashboard with CSV storage, filters, interactive insights, and monthly reports.
+# 💰 Expense Tracker Dashboard (Python + Streamlit)
+
+A simple and interactive Expense Tracker web app built using **Python + Streamlit** to track daily expenses and visualize spending analytics.
+
+## 🚀 Features
+- Add daily expenses (date, category, amount, note)
+- Store expenses in CSV file
+- Filter expenses by category and month
+- Summary metrics (Total, Average, Transactions)
+- Category-wise spending analytics (Pie chart)
+- Daily spending trend (Line chart)
+- Monthly report + Top 5 highest expenses
+- Download filtered expenses as CSV
+
+## 🛠 Tech Stack
+- Python
+- Streamlit
+- Pandas
+- Matplotlib
+
+## ▶️ Run Locally
+```bash
+pip install -r requirements.txt
+streamlit run app.py
