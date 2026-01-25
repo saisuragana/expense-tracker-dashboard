@@ -1,7 +1,6 @@
 import plotly.express as px
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 from datetime import datetime
 import os
 
@@ -250,3 +249,4 @@ with tab4:
             save_data(empty_df)
             st.success("✅ All expenses cleared!")
             st.rerun()
+
